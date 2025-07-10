@@ -14,6 +14,10 @@ def get_db():
     finally:
         db.close()
 
+
+
+# Users
+
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db, user)
@@ -42,3 +46,38 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not deleted_user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"ok": True}
+
+
+
+
+# Products
+
+@app.post("/products/", response_model=schemas.Product)
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    return crud.create_product(db, product)
+
+@app.get("/products/", response_model=list[schemas.Product])
+def read_products(db: Session = Depends(get_db)):
+    return crud.get_products(db)
+
+@app.get("/products/{product_id}", response_model=schemas.Product)
+def read_product(product_id: int, db: Session = Depends(get_db)):
+    product = crud.get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+@app.put("/products/{product_id}", response_model=schemas.Product)
+def update_product(product_id: int, product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    updated_product = crud.update_product(db, product_id, product)
+    if not updated_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return updated_product
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    deleted_product = crud.delete_product(db, product_id)
+    if not deleted_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"ok": True}
+

@@ -11,4 +11,23 @@ class User(UserBase):
     id: int
 
     class Config:
-        from_attributes = True  # Pydantic v2 için bu gerekli
+        from_attributes = True  
+
+
+class ProductBase(BaseModel):
+    name: str
+    description: str
+    price: int
+    color: str
+    quantity: int
+
+class ProductCreate(ProductBase):
+    pass
+
+class Product(ProductBase):
+    id: int
+
+    class Config:
+        from_attributes = True  
+
+
