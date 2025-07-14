@@ -1,5 +1,6 @@
-from pydantic import BaseModel
-from typing import TypeVar, Generic, Optional, List
+from pydantic import BaseModel,Field
+from typing import TypeVar, Generic, Optional, List, GenericModel
+
 
 # -------------------- COMPANY --------------------
 
@@ -60,11 +61,16 @@ class Product(ProductBase):
 
 T = TypeVar("T")
 
-class ResponseModel(BaseModel, Generic[T]):
+
+class ResponseModel(GenericModel, Generic[T]):
     status: bool
     data: Optional[T] = None
     message: Optional[str] = None
 
-    model_config = {
-        "exclude_none": True
-    }
+    @classmethod
+    def success(cls, data: T):
+        return cls(status=True, data=data)
+
+    @classmethod
+    def error(cls, message: str):
+        return cls(status=False, message=message)
