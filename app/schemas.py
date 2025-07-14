@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from typing import TypeVar, Generic, Optional
+
+# -------------------- USER --------------------
 
 class UserBase(BaseModel):
     name: str
@@ -10,9 +13,11 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True  
+    model_config = {
+        "from_attributes": True
+    }
 
+# -------------------- PRODUCT --------------------
 
 class ProductBase(BaseModel):
     name: str
@@ -27,7 +32,16 @@ class ProductCreate(ProductBase):
 class Product(ProductBase):
     id: int
 
-    class Config:
-        from_attributes = True  
 
+    model_config = {
+        "from_attributes": True
+    }
 
+# -------------------- RESPONSE WRAPPER --------------------
+
+T = TypeVar("T")
+
+class ResponseModel(BaseModel, Generic[T]):
+    status: bool
+    data: Optional[T] = None
+    message: Optional[str] = None
