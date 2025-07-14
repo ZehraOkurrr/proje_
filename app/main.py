@@ -4,6 +4,12 @@ from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .database import engine, SessionLocal
 
+import logging
+
+# Logger setup
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -58,7 +64,12 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/products/")
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    logger.info(f"📥 Gelen veri (Postman'den): {product.model_dump()}")
+
     created = crud.create_product(db, product)
+
+    logger.info(f"✅ Veritabanına kaydedilen ürün: {created.__dict__}")
+
     created_data = schemas.Product.model_validate(created).model_dump()
     return JSONResponse(content={"status": True, "data": created_data})
 

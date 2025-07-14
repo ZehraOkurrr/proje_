@@ -27,10 +27,11 @@ class ProductBase(BaseModel):
     quantity: int
 
 class ProductCreate(ProductBase):
-    pass
+    user_id: int
 
 class Product(ProductBase):
     id: int
+    user_id: int
 
     model_config = {
         "from_attributes": True

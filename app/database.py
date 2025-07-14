@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 DB_USER = "user"
 DB_PASSWORD = "password"
-DB_HOST = "mysql_db"  # Docker içindeki servis adı
+DB_HOST = "mysql_db1"  # Docker içindeki servis adı
 DB_PORT = "3306"      # Docker içindeki MySQL portu
 DB_NAME = "proje_db"
 
