@@ -32,7 +32,6 @@ class ProductCreate(ProductBase):
 class Product(ProductBase):
     id: int
 
-
     model_config = {
         "from_attributes": True
     }
@@ -45,3 +44,7 @@ class ResponseModel(BaseModel, Generic[T]):
     status: bool
     data: Optional[T] = None
     message: Optional[str] = None
+
+    model_config = {
+        "exclude_none": True
+    }
