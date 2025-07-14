@@ -1,5 +1,22 @@
 from pydantic import BaseModel
-from typing import TypeVar, Generic, Optional
+from typing import TypeVar, Generic, Optional, List
+
+# -------------------- COMPANY --------------------
+
+class CompanyBase(BaseModel):
+    name: str
+
+class CompanyCreate(CompanyBase):
+    user_id: int
+
+class Company(CompanyBase):
+    id: int
+    user_id: int
+
+    model_config = {
+        "from_attributes": True
+    }
+
 
 # -------------------- USER --------------------
 
@@ -12,10 +29,12 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    company: Optional[Company] = None  # Birebir ilişkiyi gösteren alan
 
     model_config = {
         "from_attributes": True
     }
+
 
 # -------------------- PRODUCT --------------------
 

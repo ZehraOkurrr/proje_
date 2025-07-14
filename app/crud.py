@@ -1,13 +1,14 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from fastapi import HTTPException
 from . import models, schemas
 
 # USERS
 
 def get_users(db: Session):
-    return db.query(models.User).all()
+    return db.query(models.User).options(joinedload(models.User.company)).all()
 
 def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).options(joinedload(models.User.company)).filter(models.User.id == user_id).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
     db_user = models.User(name=user.name, age=user.age)
@@ -32,37 +33,44 @@ def delete_user(db: Session, user_id: int):
         db.commit()
     return db_user
 
+# COMPANY
 
-# PRODUCTS
+def create_company(db: Session, company: schemas.CompanyCreate):
+    existing = db.query(models.Company).filter_by(user_id=company.user_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="This user already has a company.")
 
-def get_products(db: Session):
-    return db.query(models.Product).all()
+    existing_name = db.query(models.Company).filter_by(name=company.name).first()
+    if existing_name:
+        raise HTTPException(status_code=400, detail="This company name is already used.")
 
-def get_product(db: Session, product_id: int):
-    return db.query(models.Product).filter(models.Product.id == product_id).first()
-
-def create_product(db: Session, product: schemas.ProductCreate):
-    db_product = models.Product(**product.dict())
-    db.add(db_product)
+    db_company = models.Company(**company.dict())
+    db.add(db_company)
     db.commit()
-    db.refresh(db_product)
-    return db_product
-    
+    db.refresh(db_company)
+    return db_company
 
-def update_product(db: Session, product_id: int, product: schemas.ProductCreate):
-    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    if db_product:
-        for key, value in product.dict().items():
-            setattr(db_product, key, value)
-        db.commit()
-        db.refresh(db_product)
-    return db_product
+def get_companies(db: Session):
+    return db.query(models.Company).options(joinedload(models.Company.user)).all()
 
-def delete_product(db: Session, product_id: int):
-    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    if db_product:
-        db.delete(db_product)
-        db.commit()
-    return db_product
+def get_company(db: Session, company_id: int):
+    return db.query(models.Company).options(joinedload(models.Company.user)).filter(models.Company.id == company_id).first()
 
 
+def update_company(db: Session, company_id: int, company: schemas.CompanyBase):
+    db_company = db.query(models.Company).filter(models.Company.id == company_id).first()
+    if not db_company:
+        return None
+    db_company.name = company.name
+    db.commit()
+    db.refresh(db_company)
+    return db_company
+
+
+def delete_company(db: Session, company_id: int):
+    db_company = db.query(models.Company).filter(models.Company.id == company_id).first()
+    if not db_company:
+        return None
+    db.delete(db_company)
+    db.commit()
+    return db_company
