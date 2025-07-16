@@ -6,6 +6,10 @@ from . import models, schemas, crud
 from .database import engine, SessionLocal
 from .utils import success_response, error_response, CustomJSONResponse
 import logging
+from fastapi.exception_handlers import request_validation_exception_handler
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from pydantic import ValidationError
+
 
 app = FastAPI(default_response_class=CustomJSONResponse)
 
@@ -22,14 +26,23 @@ def get_db():
         db.close()
 
 def handle_exception(e):
+    if isinstance(e, ValidationError):
+        first_error = e.errors()[0]
+        return error_response(first_error.get("msg", "Invalid input"), status_code=422)
+
     message = getattr(e, "detail", str(e))
     return error_response(message)
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     first_error = exc.errors()[0]
-    message = first_error.get("msg", "Validation error")
-    return error_response(message)
+    simple_message = first_error.get("msg", "Invalid input")
+    return error_response(simple_message, status_code=422)
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return error_response(exc.detail, status_code=exc.status_code)
 
 # -------------------- COMPANIES --------------------
 
@@ -139,4 +152,40 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_product(db, product_id)
     if not deleted:
         return error_response("Product not found")
+    return success_response({"deleted": True}, schema=None)
+
+# -------------------- CATEGORIES --------------------
+
+@app.post("/categories/")
+def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_db)):
+    try:
+        created = crud.create_category(db, category)
+        return success_response(created, schemas.Category)
+    except Exception as e:
+        return handle_exception(e)
+
+@app.get("/categories/")
+def read_categories(db: Session = Depends(get_db)):
+    categories = crud.get_categories(db)
+    return success_response(categories, schemas.Category)
+
+@app.get("/categories/{category_id}")
+def read_category(category_id: int, db: Session = Depends(get_db)):
+    category = crud.get_category(db, category_id)
+    if not category:
+        return error_response("Category not found")
+    return success_response(category, schemas.Category)
+
+@app.put("/categories/{category_id}")
+def update_category(category_id: int, category: schemas.CategoryCreate, db: Session = Depends(get_db)):
+    updated = crud.update_category(db, category_id, category)
+    if not updated:
+        return error_response("Category not found")
+    return success_response(updated, schemas.Category)
+
+@app.delete("/categories/{category_id}")
+def delete_category(category_id: int, db: Session = Depends(get_db)):
+    deleted = crud.delete_category(db, category_id)
+    if not deleted:
+        return error_response("Category not found")
     return success_response({"deleted": True}, schema=None)
