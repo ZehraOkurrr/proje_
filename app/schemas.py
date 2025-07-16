@@ -29,7 +29,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    company: Optional[Company] = None
+   
 
     model_config = {
         "from_attributes": True

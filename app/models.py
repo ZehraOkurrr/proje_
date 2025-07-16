@@ -7,7 +7,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(12))
+    name = Column(String(100))
     age = Column(Integer)
 
     # One-to-many ilişki (kullanıcının ürünleri olabilir)
