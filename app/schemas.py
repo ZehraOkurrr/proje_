@@ -1,6 +1,6 @@
-from pydantic import BaseModel,Field
-from typing import TypeVar, Generic, Optional, List, GenericModel
-
+from typing import TypeVar, Generic, Optional, List
+from pydantic import BaseModel, root_validator
+from pydantic.generics import GenericModel
 
 # -------------------- COMPANY --------------------
 
@@ -18,7 +18,6 @@ class Company(CompanyBase):
         "from_attributes": True
     }
 
-
 # -------------------- USER --------------------
 
 class UserBase(BaseModel):
@@ -30,12 +29,11 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    company: Optional[Company] = None  # Birebir ilişkiyi gösteren alan
+    company: Optional[Company] = None
 
     model_config = {
         "from_attributes": True
     }
-
 
 # -------------------- PRODUCT --------------------
 
@@ -61,11 +59,18 @@ class Product(ProductBase):
 
 T = TypeVar("T")
 
-
 class ResponseModel(GenericModel, Generic[T]):
     status: bool
     data: Optional[T] = None
     message: Optional[str] = None
+
+    @root_validator(pre=True)
+    def _hide_fields(cls, values):
+        if values.get("status") is True:
+            values.pop("message", None)
+        else:
+            values.pop("data", None)
+        return values
 
     @classmethod
     def success(cls, data: T):
@@ -74,3 +79,8 @@ class ResponseModel(GenericModel, Generic[T]):
     @classmethod
     def error(cls, message: str):
         return cls(status=False, message=message)
+
+    model_config = {
+        "json_encoders": {},
+        "exclude_none": True  # <<< işte bu satır!
+    }
