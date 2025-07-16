@@ -26,8 +26,11 @@ def success_response(data: Any, schema: Type[BaseModel]) -> CustomJSONResponse:
         "data": serialize(data, schema)
     })
 
-def error_response(message: str) -> CustomJSONResponse:
-    return CustomJSONResponse(content={
-        "status": False,
-        "message": message
-    })
+def error_response(message: str, status_code: int = 400) -> CustomJSONResponse:
+    return CustomJSONResponse(
+        status_code=status_code,
+        content={
+            "status": False,
+            "message": message
+        }
+    )
