@@ -44,6 +44,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return error_response(exc.detail, status_code=exc.status_code)
 
+
+
+
+
+
 # -------------------- COMPANIES --------------------
 
 @app.post("/companies/")
@@ -80,6 +85,10 @@ def delete_company(company_id: int, db: Session = Depends(get_db)):
         return error_response("Company not found")
     return success_response({"deleted": True}, schema=None)
 
+
+
+
+
 # -------------------- USERS --------------------
 
 @app.post("/users/")
@@ -115,6 +124,10 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not deleted:
         return error_response("User not found")
     return success_response({"deleted": True}, schema=None)
+
+
+
+
 
 # -------------------- PRODUCTS --------------------
 
@@ -153,6 +166,10 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     if not deleted:
         return error_response("Product not found")
     return success_response({"deleted": True}, schema=None)
+
+
+
+
 
 # -------------------- CATEGORIES --------------------
 

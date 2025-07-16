@@ -3,6 +3,9 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import HTTPException
 from . import models, schemas
 
+
+
+
 # Yardımcı hata yöneticisi
 def handle_db_exceptions(e):
     message = str(e.orig).lower()
@@ -14,6 +17,9 @@ def handle_db_exceptions(e):
         raise HTTPException(status_code=400, detail="Missing required field.")
     else:
         raise HTTPException(status_code=400, detail="Database integrity error.")
+    
+
+
 
 # USERS
 def get_users(db: Session):
@@ -62,6 +68,10 @@ def delete_user(db: Session, user_id: int):
             db.rollback()
             raise HTTPException(status_code=500, detail="Unexpected database error occurred.")
     return db_user
+
+
+
+
 
 # COMPANY
 def create_company(db: Session, company: schemas.CompanyCreate):
@@ -121,6 +131,9 @@ def delete_company(db: Session, company_id: int):
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=500, detail="Unexpected database error occurred.")
+    
+
+
 
 # PRODUCTS
 def create_product(db: Session, product: schemas.ProductCreate):
@@ -194,6 +207,8 @@ def delete_product(db: Session, product_id: int):
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=500, detail="Unexpected database error occurred.")
+
+
 
 
 # -------------------- CATEGORY --------------------
