@@ -9,6 +9,9 @@ import logging
 from fastapi.exception_handlers import request_validation_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import ValidationError
+from .redis_client import redis_client
+
+
 
 
 app = FastAPI(default_response_class=CustomJSONResponse)
@@ -43,6 +46,21 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return error_response(exc.detail, status_code=exc.status_code)
+
+
+
+
+
+
+@app.get("/cache")
+def cache_example():
+    redis_client.set("simyth", "efsane", ex=60)  # 60 saniyelik cache
+    return {"message": "Redis'e yazıldı."}
+
+@app.get("/get-cache")
+def get_cache():
+    val = redis_client.get("simyth")
+    return {"value": val}
 
 
 

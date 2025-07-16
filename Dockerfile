@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Çalışma dizini
-WORKDIR /app
+WORKDIR /code
 
 # Gereksinimleri kopyala ve kur
 COPY requirements.txt .
@@ -13,3 +13,7 @@ COPY . .
 
 # Uygulamayı başlat
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+
