@@ -1,11 +1,11 @@
 from typing import TypeVar, Generic, Optional, List
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, Field, validator
 from pydantic.generics import GenericModel
 
 # -------------------- COMPANY --------------------
 
 class CompanyBase(BaseModel):
-    name: str
+    name: str = Field(..., max_length = 4)
 
 class CompanyCreate(CompanyBase):
     user_id: int
@@ -18,11 +18,18 @@ class Company(CompanyBase):
         "from_attributes": True
     }
 
+    @validator("name")
+    def check_name_length(cls, value):
+        if len(value) > 4:
+            raise ValueError("Name must be at most 4 characters")
+        return value
+
 # -------------------- USER --------------------
 
 class UserBase(BaseModel):
-    name: str
+    name: str = Field(..., max_length = 4)
     age: int
+
 
 class UserCreate(UserBase):
     pass
@@ -35,10 +42,16 @@ class User(UserBase):
         "from_attributes": True
     }
 
+    @validator("name")
+    def check_name_length(cls, value):
+        if len(value) > 4:
+            raise ValueError("Name must be at most 4 characters")
+        return value
+    
 # -------------------- PRODUCT --------------------
 
 class ProductBase(BaseModel):
-    name: str
+    name: str = Field(..., max_length = 4)
     description: str
     price: int
     color: str
@@ -54,6 +67,12 @@ class Product(ProductBase):
     model_config = {
         "from_attributes": True
     }
+
+    @validator("name")
+    def check_name_length(cls, value):
+        if len(value) > 4:
+            raise ValueError("Name must be at most 4 characters")
+        return value
 
 # -------------------- RESPONSE WRAPPER --------------------
 
