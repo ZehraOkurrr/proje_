@@ -21,10 +21,13 @@ class CustomJSONResponse(JSONResponse):
         return super().render(cleaned)
 
 def success_response(data: Any, schema: Type[BaseModel]) -> CustomJSONResponse:
-    return CustomJSONResponse(content={
-        "status": True,
-        "data": serialize(data, schema)
-    })
+    return CustomJSONResponse(
+        status_code=200,
+        content={
+            "status": True,
+            "data": serialize(data, schema)
+        }
+    )
 
 def error_response(message: str, status_code: int = 400) -> CustomJSONResponse:
     return CustomJSONResponse(

@@ -19,6 +19,11 @@ def get_db():
     finally:
         db.close()
 
+def handle_exception(e):
+    message = getattr(e, "detail", str(e))
+    status_code = getattr(e, "status_code", 400)
+    return error_response(message, status_code)
+
 # -------------------- COMPANIES --------------------
 
 @app.post("/companies/")
@@ -27,7 +32,7 @@ def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)
         created = crud.create_company(db=db, company=company)
         return success_response(created, schema=schemas.Company)
     except Exception as e:
-        return error_response(str(e))
+        return handle_exception(e)
 
 @app.get("/companies/")
 def read_companies(db: Session = Depends(get_db)):
@@ -38,29 +43,32 @@ def read_companies(db: Session = Depends(get_db)):
 def read_company(company_id: int, db: Session = Depends(get_db)):
     company = crud.get_company(db, company_id)
     if not company:
-        return error_response("Company not found")
+        return error_response("Company not found", status_code=404)
     return success_response(company, schema=schemas.Company)
 
 @app.put("/companies/{company_id}")
 def update_company(company_id: int, company: schemas.CompanyBase, db: Session = Depends(get_db)):
     updated = crud.update_company(db, company_id, company)
     if not updated:
-        return error_response("Company not found")
+        return error_response("Company not found", status_code=404)
     return success_response(updated, schema=schemas.Company)
 
 @app.delete("/companies/{company_id}")
 def delete_company(company_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_company(db, company_id)
     if not deleted:
-        return error_response("Company not found")
+        return error_response("Company not found", status_code=404)
     return success_response({"deleted": True}, schema=schemas.GenericSuccess)
 
 # -------------------- USERS --------------------
 
 @app.post("/users/")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    created = crud.create_user(db, user)
-    return success_response(created, schema=schemas.User)
+    try:
+        created = crud.create_user(db, user)
+        return success_response(created, schema=schemas.User)
+    except Exception as e:
+        return handle_exception(e)
 
 @app.get("/users/")
 def read_users(db: Session = Depends(get_db)):
@@ -71,31 +79,34 @@ def read_users(db: Session = Depends(get_db)):
 def read_user(user_id: int, db: Session = Depends(get_db)):
     user = crud.get_user(db, user_id)
     if not user:
-        return error_response("User not found")
+        return error_response("User not found", status_code=404)
     return success_response(user, schema=schemas.User)
 
 @app.put("/users/{user_id}")
 def update_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
     updated = crud.update_user(db, user_id, user)
     if not updated:
-        return error_response("User not found")
+        return error_response("User not found", status_code=404)
     return success_response(updated, schema=schemas.User)
 
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_user(db, user_id)
     if not deleted:
-        return error_response("User not found")
+        return error_response("User not found", status_code=404)
     return success_response({"deleted": True}, schema=schemas.GenericSuccess)
 
 # -------------------- PRODUCTS --------------------
 
 @app.post("/products/")
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    logger.info(f"📥 Gelen veri: {product.model_dump()}")
-    created = crud.create_product(db, product)
-    logger.info(f"✅ DB'ye eklenen: {created.__dict__}")
-    return success_response(created, schema=schemas.Product)
+    try:
+        logger.info(f"📥 Gelen veri: {product.model_dump()}")
+        created = crud.create_product(db, product)
+        logger.info(f"✅ DB'ye eklenen: {created.__dict__}")
+        return success_response(created, schema=schemas.Product)
+    except Exception as e:
+        return handle_exception(e)
 
 @app.get("/products/")
 def read_products(db: Session = Depends(get_db)):
@@ -106,19 +117,19 @@ def read_products(db: Session = Depends(get_db)):
 def read_product(product_id: int, db: Session = Depends(get_db)):
     product = crud.get_product(db, product_id)
     if not product:
-        return error_response("Product not found")
+        return error_response("Product not found", status_code=404)
     return success_response(product, schema=schemas.Product)
 
 @app.put("/products/{product_id}")
 def update_product(product_id: int, product: schemas.ProductCreate, db: Session = Depends(get_db)):
     updated = crud.update_product(db, product_id, product)
     if not updated:
-        return error_response("Product not found")
+        return error_response("Product not found", status_code=404)
     return success_response(updated, schema=schemas.Product)
 
 @app.delete("/products/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_product(db, product_id)
     if not deleted:
-        return error_response("Product not found")
+        return error_response("Product not found", status_code=404)
     return success_response({"deleted": True}, schema=schemas.GenericSuccess)
