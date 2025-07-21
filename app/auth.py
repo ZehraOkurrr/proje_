@@ -35,7 +35,6 @@ async def auth_callback(code: str):
         token_json = token_res.json()
         access_token = token_json.get("access_token")
 
-        # Kullanıcı bilgilerini çek
         user_res = await client.get(
             "https://api.github.com/user",
             headers={"Authorization": f"Bearer {access_token}"}
