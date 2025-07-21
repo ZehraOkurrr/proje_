@@ -10,11 +10,13 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import ValidationError
 from .redis_client import redis_client
+from app.auth import router as auth_router
 
 
 
 
 app = FastAPI(default_response_class=CustomJSONResponse)
+app.include_router(auth_router)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
